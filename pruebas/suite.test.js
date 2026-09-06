@@ -168,22 +168,18 @@ test('no se puede reservar antes de las 8:00 ni después de las 21:00', async ()
 // Condición 1.3 — integración.
 // Falla si: se puede crear una reserva con el teléfono vacío.
 test('no se crea una reserva con el teléfono vacío', async () => {
-  await falloEsperado(2, async () => {
-    // El formulario real manda el campo vacío cuando no se llena.
-    await reservar({ cancha: '1', fecha: '2030-01-07', hora: '10', cliente: 'Sin Teléfono', telefono: '' });
-    assert.equal(reservasDe('2030-01-07').length, 0, 'la reserva sin teléfono no debía guardarse');
-  });
+  // El formulario real manda el campo vacío cuando no se llena.
+  await reservar({ cancha: '1', fecha: '2030-01-07', hora: '10', cliente: 'Sin Teléfono', telefono: '' });
+  assert.equal(reservasDe('2030-01-07').length, 0, 'la reserva sin teléfono no debía guardarse');
 });
 
 // Condición 1.3 — integración.
 // Falla si: se acepta un teléfono que no sea exactamente 8 dígitos.
 test('no se crea una reserva con un teléfono que no sea de 8 dígitos', async () => {
-  await falloEsperado(3, async () => {
-    await reservar({ cancha: '1', fecha: '2030-01-08', hora: '10', cliente: 'Tel Corto', telefono: '123' });
-    await reservar({ cancha: '1', fecha: '2030-01-08', hora: '11', cliente: 'Tel Largo', telefono: '123456789' });
-    await reservar({ cancha: '1', fecha: '2030-01-08', hora: '12', cliente: 'Tel Letras', telefono: '8811AA22' });
-    assert.equal(reservasDe('2030-01-08').length, 0, 'ningún teléfono inválido debía producir una reserva');
-  });
+  await reservar({ cancha: '1', fecha: '2030-01-08', hora: '10', cliente: 'Tel Corto', telefono: '123' });
+  await reservar({ cancha: '1', fecha: '2030-01-08', hora: '11', cliente: 'Tel Largo', telefono: '123456789' });
+  await reservar({ cancha: '1', fecha: '2030-01-08', hora: '12', cliente: 'Tel Letras', telefono: '8811AA22' });
+  assert.equal(reservasDe('2030-01-08').length, 0, 'ningún teléfono inválido debía producir una reserva');
 });
 
 // Condición 1.4 — integración.
