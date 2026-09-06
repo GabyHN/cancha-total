@@ -9,7 +9,10 @@
     "test": "node --test \"pruebas/*.test.js\""
   },
   "dependencies": {
-    "better-sqlite3": "^11.3.0",
+    "@libsql/client": "^0.18.0",
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "better-sqlite3": "^11.3.0"
   }
 }
