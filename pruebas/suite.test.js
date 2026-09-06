@@ -341,14 +341,12 @@ test('con menos de 24 horas de anticipación ya no se puede cancelar', async (t)
   manana.setDate(manana.getDate() + 1);
   const fecha = `${manana.getFullYear()}-${String(manana.getMonth() + 1).padStart(2, '0')}-${String(manana.getDate()).padStart(2, '0')}`;
 
-  await falloEsperado(5, async () => {
-    await reservar({ cancha: '2', fecha, hora: String(hora), cliente: 'Tardío', telefono: '88000116' });
-    const guardada = reservasDe(fecha).find(r => r.cliente === 'Tardío');
-    await cancelar(guardada.id);
+  await reservar({ cancha: '2', fecha, hora: String(hora), cliente: 'Tardío', telefono: '88000116' });
+  const guardada = reservasDe(fecha).find(r => r.cliente === 'Tardío');
+  await cancelar(guardada.id);
 
-    const despues = reservasDe(fecha).find(r => r.id === guardada.id);
-    assert.equal(despues.estado, 'activa', 'a menos de 24 horas no hay cancelación: la reserva sigue activa y cobrada');
-  });
+  const despues = reservasDe(fecha).find(r => r.id === guardada.id);
+  assert.equal(despues.estado, 'activa', 'a menos de 24 horas no hay cancelación: la reserva sigue activa y cobrada');
 });
 
 // Condición 3.3 — integración.
