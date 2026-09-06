@@ -353,9 +353,12 @@ app.post('/reservas/:id/cancelar', manejar(async (req, res) => {
     return res.send(layout('Error', `<div class="error">La reserva #${id} ya estaba cancelada.</div><p><a href="/dia/${reserva.fecha}">Volver</a></p>`));
   }
 
-  // Regla de las 24 horas: la reserva tiene que ser para una fecha futura.
-  const hoyFecha = hoyISO();
-  if (reserva.fecha > hoyFecha) {
+  // Regla de las 24 horas: tienen que faltar al menos 24 horas entre ahora y el
+  // momento exacto en que arranca el bloque (fecha + hora de inicio).
+  const [anio, mes, dia] = String(reserva.fecha).split('-').map(Number);
+  const inicioBloque = new Date(anio, mes - 1, dia, Number(reserva.hora), 0, 0, 0);
+  const faltanMs = inicioBloque.getTime() - Date.now();
+  if (faltanMs >= 24 * 60 * 60 * 1000) {
     await db.execute({ sql: `UPDATE reservas SET estado = 'cancelada' WHERE id = ?`, args: [id] });
     return res.send(layout('Cancelada', `<div class="ok">Reserva #${id} cancelada.</div><p><a href="/dia/${reserva.fecha}">Volver</a></p>`));
   } else {
