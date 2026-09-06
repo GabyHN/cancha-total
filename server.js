@@ -314,7 +314,7 @@ app.post('/reservas', manejar(async (req, res) => {
   const mesFecha = fecha.slice(0, 7);
   const conteoMes = await db.execute({
     sql: `SELECT COUNT(*) AS total FROM reservas
-          WHERE telefono = ? AND substr(fecha, 1, 7) = ?`,
+          WHERE telefono = ? AND substr(fecha, 1, 7) = ? AND estado = 'activa'`,
     args: [telefono, mesFecha],
   });
 
