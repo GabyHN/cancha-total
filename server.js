@@ -286,6 +286,13 @@ app.post('/reservas', manejar(async (req, res) => {
     errores.push('Falta el nombre del cliente.');
   }
 
+  // El teléfono es obligatorio y son exactamente 8 dígitos (condición 1.3).
+  if (telefono === undefined || telefono === null || telefono === '') {
+    errores.push('Falta el teléfono.');
+  } else if (!/^\d{8}$/.test(telefono)) {
+    errores.push('El teléfono debe tener exactamente 8 dígitos.');
+  }
+
   if (errores.length > 0) {
     const listaErrores = errores.map(e => `<li>${e}</li>`).join('');
     const contenidoError = `<div class="error"><p>No se pudo crear la reserva:</p><ul>${listaErrores}</ul></div><p><a href="/">Volver</a></p>`;

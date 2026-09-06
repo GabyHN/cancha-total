@@ -2,15 +2,12 @@
   "permissions": {
     "deny": [
       "Edit(.github/workflows/**)",
-      "Write(.github/workflows/**)",
       "Edit(verificar.sh)",
-      "Write(verificar.sh)",
       "Bash(git push --force:*)",
       "Bash(git push -f:*)"
     ],
     "ask": [
-      "Edit(pruebas/**)",
-      "Write(pruebas/**)"
+      "Edit(pruebas/**)"
     ]
   },
   "hooks": {
