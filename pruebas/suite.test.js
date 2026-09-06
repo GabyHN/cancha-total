@@ -269,20 +269,18 @@ test('la cuarta reserva del mes del mismo teléfono sale con 10 % de descuento',
 // Condición 2.3 — integración. «Frecuente es el que juega, no el que aparta.»
 // Falla si: las reservas canceladas cuentan para llegar a las cuatro del mes.
 test('las reservas canceladas no cuentan para el descuento de frecuente', async () => {
-  await falloEsperado(4, async () => {
-    const tel = '88000412';
-    await reservar({ cancha: '1', fecha: '2030-04-01', hora: '10', cliente: 'Apartador', telefono: tel });
-    const [apartada] = reservasDe('2030-04-01');
-    await cancelar(apartada.id);
+  const tel = '88000412';
+  await reservar({ cancha: '1', fecha: '2030-04-01', hora: '10', cliente: 'Apartador', telefono: tel });
+  const [apartada] = reservasDe('2030-04-01');
+  await cancelar(apartada.id);
 
-    await reservar({ cancha: '1', fecha: '2030-04-02', hora: '10', cliente: 'Apartador', telefono: tel });
-    await reservar({ cancha: '1', fecha: '2030-04-03', hora: '10', cliente: 'Apartador', telefono: tel });
-    // Con la cancelada fuera del conteo, esta es apenas la tercera que juega.
-    await reservar({ cancha: '1', fecha: '2030-04-04', hora: '10', cliente: 'Apartador', telefono: tel });
+  await reservar({ cancha: '1', fecha: '2030-04-02', hora: '10', cliente: 'Apartador', telefono: tel });
+  await reservar({ cancha: '1', fecha: '2030-04-03', hora: '10', cliente: 'Apartador', telefono: tel });
+  // Con la cancelada fuera del conteo, esta es apenas la tercera que juega.
+  await reservar({ cancha: '1', fecha: '2030-04-04', hora: '10', cliente: 'Apartador', telefono: tel });
 
-    const [cuartaAparente] = reservasDe('2030-04-04');
-    assert.equal(cuartaAparente.precio, 15000, 'con la cancelada excluida no llega a cuatro: sin descuento');
-  });
+  const [cuartaAparente] = reservasDe('2030-04-04');
+  assert.equal(cuartaAparente.precio, 15000, 'con la cancelada excluida no llega a cuatro: sin descuento');
 });
 
 // Condición 2.4 — integración.
