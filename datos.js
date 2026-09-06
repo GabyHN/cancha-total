@@ -1,32 +1,15 @@
-// Borra reservas.db y la recrea con reservas de ejemplo variadas.
+// Vacía la tabla de reservas y la recrea con reservas de ejemplo variadas.
+// Sin variables de ambiente trabaja sobre reservas.db local; con
+// TURSO_DATABASE_URL y TURSO_AUTH_TOKEN siembra la base gestionada.
 // Uso: npm run datos
 
-const fs = require('fs');
 const path = require('path');
-const Database = require('better-sqlite3');
+const { createClient } = require('@libsql/client');
 
-const RUTA_DB = path.join(__dirname, 'reservas.db');
-
-if (fs.existsSync(RUTA_DB)) {
-  fs.unlinkSync(RUTA_DB);
-  console.log('Base de datos anterior borrada.');
-}
-
-const db = new Database(RUTA_DB);
-
-db.exec(`
-  CREATE TABLE reservas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    cancha INTEGER NOT NULL,
-    fecha TEXT NOT NULL,
-    hora INTEGER NOT NULL,
-    cliente TEXT NOT NULL,
-    telefono TEXT,
-    precio INTEGER NOT NULL,
-    estado TEXT NOT NULL DEFAULT 'activa',
-    creada_en TEXT NOT NULL DEFAULT (datetime('now'))
-  )
-`);
+const db = createClient({
+  url: process.env.TURSO_DATABASE_URL || 'file:' + path.join(__dirname, 'reservas.db'),
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
 function fechaISO(offsetDias) {
   const d = new Date();
@@ -35,11 +18,6 @@ function fechaISO(offsetDias) {
   const dia = String(d.getDate()).padStart(2, '0');
   return `${d.getFullYear()}-${mes}-${dia}`;
 }
-
-const insertar = db.prepare(`
-  INSERT INTO reservas (cancha, fecha, hora, cliente, telefono, precio, estado)
-  VALUES (@cancha, @fecha, @hora, @cliente, @telefono, @precio, @estado)
-`);
 
 const reservas = [
   { cancha: 1, fecha: fechaISO(0), hora: 9, cliente: 'Marco Jiménez', telefono: '88112233', precio: 15000, estado: 'activa' },
@@ -54,9 +32,37 @@ const reservas = [
   { cancha: 2, fecha: fechaISO(4), hora: 12, cliente: 'Paola Vindas', telefono: '85667788', precio: 15000, estado: 'activa' },
 ];
 
-for (const r of reservas) {
-  insertar.run(r);
+async function main() {
+  await db.execute('DROP TABLE IF EXISTS reservas');
+  console.log('Tabla de reservas anterior borrada.');
+
+  await db.execute(`
+    CREATE TABLE reservas (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      cancha INTEGER NOT NULL,
+      fecha TEXT NOT NULL,
+      hora INTEGER NOT NULL,
+      cliente TEXT NOT NULL,
+      telefono TEXT,
+      precio INTEGER NOT NULL,
+      estado TEXT NOT NULL DEFAULT 'activa',
+      creada_en TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  for (const r of reservas) {
+    await db.execute({
+      sql: `INSERT INTO reservas (cancha, fecha, hora, cliente, telefono, precio, estado)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      args: [r.cancha, r.fecha, r.hora, r.cliente, r.telefono, r.precio, r.estado],
+    });
+  }
+
+  console.log(`Base de datos recreada con ${reservas.length} reservas de ejemplo.`);
+  db.close();
 }
 
-console.log(`Base de datos recreada con ${reservas.length} reservas de ejemplo.`);
-db.close();
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
