@@ -241,11 +241,9 @@ test('el bloque de las 16:00 se cobra a tarifa diurna: ₡15.000', async () => {
 // de la tarde: el partido de las 5 ya va con luz».
 // Falla si: el corte de la tarifa con luz no está en las 17:00.
 test('el bloque de las 17:00 ya se cobra con luz: ₡20.000', async () => {
-  await falloEsperado(1, async () => {
-    await reservar({ cancha: '1', fecha: '2030-01-13', hora: '17', cliente: 'Con Luz', telefono: '88000113' });
-    const [guardada] = reservasDe('2030-01-13');
-    assert.equal(guardada.precio, 20000, 'el partido de las 17:00 ya va con luz y se cobra ₡20.000');
-  });
+  await reservar({ cancha: '1', fecha: '2030-01-13', hora: '17', cliente: 'Con Luz', telefono: '88000113' });
+  const [guardada] = reservasDe('2030-01-13');
+  assert.equal(guardada.precio, 20000, 'el partido de las 17:00 ya va con luz y se cobra ₡20.000');
 });
 
 // Condición 2.1 — integración.
