@@ -48,7 +48,7 @@ function esFeriado(fecha) {
 // La tarifa de un bloque depende solo de su hora de inicio. La luz se
 // enciende a las 17:00: ese bloque ya se cobra con luz.
 function tarifaBloque(hora) {
-  if (hora >= 18) {
+  if (hora >= 17) {
     return 20000;
   }
   return 15000;
