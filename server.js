@@ -45,6 +45,14 @@ function esFeriado(fecha) {
 // }
 // -----------------------------------------------------------------------
 
+// La tarifa de un bloque depende solo de su hora de inicio.
+function tarifaBloque(hora) {
+  if (hora >= 18) {
+    return 20000;
+  }
+  return 15000;
+}
+
 function formatColones(monto) {
   return '₡' + Math.round(monto).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
@@ -123,12 +131,7 @@ app.get('/', (req, res) => {
   let filasCancha2 = '';
   for (let hora = 8; hora <= 21; hora++) {
     // Tarifa del bloque para pintar la disponibilidad.
-    let precio;
-    if (hora >= 18) {
-      precio = 20000;
-    } else {
-      precio = 15000;
-    }
+    const precio = tarifaBloque(hora);
 
     const libre1 = checkDisponible(1, fecha, hora);
     filasCancha1 += `<tr><td>${hora}:00</td><td class="${libre1 ? 'libre' : 'ocupado'}">${libre1 ? 'Libre' : 'Ocupado'}</td><td>${formatColones(precio)}</td></tr>`;
@@ -276,12 +279,7 @@ app.post('/reservas', (req, res) => {
   }
 
   // Paso 4: calcular el precio según el horario.
-  let precio;
-  if (hora >= 18) {
-    precio = 20000;
-  } else {
-    precio = 15000;
-  }
+  let precio = tarifaBloque(hora);
 
   // Paso 5: contar cuántas reservas lleva este teléfono en el mes para
   // saber si aplica el descuento de cliente frecuente.
@@ -363,14 +361,7 @@ app.get('/dia/:fecha', (req, res) => {
 // Precio previo de un bloque, usado por el formulario de la página de inicio.
 app.get('/api/cotizar', (req, res) => {
   const hora = Number(req.query.hora);
-
-  // Cotización rápida para el formulario.
-  let precio;
-  if (hora >= 18) {
-    precio = 20000;
-  } else {
-    precio = 15000;
-  }
+  const precio = tarifaBloque(hora);
 
   res.json({ precio, precioFormateado: formatColones(precio) });
 });
