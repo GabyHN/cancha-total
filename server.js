@@ -367,7 +367,13 @@ app.get('/api/cotizar', (req, res) => {
   res.json({ precio, precioFormateado: formatColones(precio) });
 });
 
-const PUERTO = 3000;
-app.listen(PUERTO, () => {
-  console.log(`Cancha Total F5 escuchando en el puerto ${PUERTO}`);
-});
+// En local el servidor escucha en el puerto 3000. En Vercel el archivo se
+// importa como función serverless: quien escucha es la plataforma.
+if (require.main === module) {
+  const PUERTO = 3000;
+  app.listen(PUERTO, () => {
+    console.log(`Cancha Total F5 escuchando en el puerto ${PUERTO}`);
+  });
+}
+
+module.exports = app;
