@@ -1,4 +1,18 @@
 {
+  "permissions": {
+    "deny": [
+      "Edit(.github/workflows/**)",
+      "Write(.github/workflows/**)",
+      "Edit(verificar.sh)",
+      "Write(verificar.sh)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
+    "ask": [
+      "Edit(pruebas/**)",
+      "Write(pruebas/**)"
+    ]
+  },
   "hooks": {
     "Stop": [
       { "hooks": [ { "type": "command", "command": "bash \"${CLAUDE_PROJECT_DIR}/verificar.sh\"" } ] }
