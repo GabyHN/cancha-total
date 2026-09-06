@@ -1,0 +1,38 @@
+# Puerta de calidad de Cancha Total F5.
+#
+# Qué IMPIDE la fusión: el job "verificar" (la suite completa vía verificar.sh).
+# Qué ÚNICAMENTE INFORMA: el paso "Auditoría de dependencias (solo informa)",
+# marcado con continue-on-error — su resultado se ve en el registro pero nunca
+# pone la corrida en rojo.
+#
+# Corre sin credenciales de ningún servicio externo: la suite usa SQLite local.
+# Las acciones de terceros están fijadas a un SHA inmutable, no a un tag móvil.
+
+name: Verificación
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # actions/setup-node v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Auditoría de dependencias (solo informa)
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Correr la verificación
+        run: bash verificar.sh
